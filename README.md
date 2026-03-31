@@ -1,8 +1,8 @@
 # cleo-ai
 
-AI-assisted workspace for writing CLEO5 scripts for GTA San Andreas.
+Create GTA San Andreas mods with AI. Write CLEO5 scripts using an AI coding assistant instead of memorizing thousands of opcodes.
 
-This repo contains a complete opcode reference, examples, and reusable patterns — designed to be used with an AI coding assistant (like Claude) that can look up opcodes, check parameter signatures, and generate correct scripts.
+This repo gives AI models (like Claude) everything they need to generate working CLEO scripts — a full opcode reference, annotated examples, and reusable patterns. You describe what you want, the AI writes the code.
 
 ## What's inside
 
@@ -15,10 +15,12 @@ This repo contains a complete opcode reference, examples, and reusable patterns 
 
 ## How it works
 
-1. Ask the AI to write a CLEO script
-2. It looks up the correct opcodes and parameters from `reference/`
-3. It follows the syntax rules from `reference/syntax-guide.md`
-4. Compile the script with Sanny Builder 4 and drop the `.cs` into your CLEO folder
+1. Open this repo with an AI coding assistant (Claude Code, Cursor, etc.)
+2. Describe what you want — spawn vehicles, teleport, draw on screen, custom missions, anything
+3. The AI looks up the correct opcodes, parameters, and enums from the reference
+4. Compile the output with Sanny Builder 4 and drop the `.cs` into your CLEO folder
+
+No need to dig through opcode lists or memorize parameter orders. The AI handles that.
 
 ## Requirements
 
