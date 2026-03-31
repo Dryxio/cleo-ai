@@ -1,0 +1,45 @@
+// CLEO5 example: Cheat Code Activation
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Listens for custom cheat codes typed in-game.
+// Type "mycar" to spawn a vehicle at the player's location.
+
+{$CLEO .cs}
+
+script_name {name} 'mycar'
+
+wait {time} 2000
+
+while true
+    wait {time} 250
+
+    if
+        not is_player_playing $player1
+    then
+        continue
+    end
+
+    if
+        test_cheat "mycar"
+    then
+        // Get player position
+        float x, y, z
+        x, y, z = get_char_coordinates $scplayer
+
+        // Spawn an Infernus in front of player
+        request_model #INFERNUS
+        load_all_models_now
+
+        int car = create_car {modelId} #INFERNUS {pos} x y z
+        mark_model_as_no_longer_needed #INFERNUS
+
+        // Set heading to match player
+        float heading = get_char_heading $scplayer
+        set_car_heading car {heading} heading
+
+        print_help_string {text} "~g~Infernus spawned!"
+    end
+end
+
+terminate_this_script

@@ -1,0 +1,54 @@
+// CLEO5 example: Screen Drawing (HUD Elements)
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Draws custom text and rectangles on screen.
+// Shows player speed and coordinates as a HUD overlay.
+
+{$CLEO .cs}
+
+script_name {name} 'myhud'
+
+wait {time} 2000
+
+use_text_commands {state} true // enable drawing for this script
+
+while true
+    wait {time} 0
+
+    if
+        not is_player_playing $player1
+    then
+        continue
+    end
+
+    float x, y, z
+    x, y, z = get_char_coordinates $scplayer
+
+    // Background rectangle
+    draw_rect {pos} 580.0 30.0 {size} 120.0 50.0 {rgb} 0x00 0x00 0x00 {alpha} 150
+
+    // Header text
+    set_text_font {font} Font.Subtitles
+    set_text_scale {width} 0.3 {height} 1.0
+    set_text_colour {rgb} 0xFF 0xFF 0x00 {alpha} 255
+    set_text_edge {size} 1 {rgb} 0 0 0 {alpha} 200
+    display_text_formatted {pos} 525.0 10.0 {format} "X:%.0f Y:%.0f Z:%.0f" {args} x y z
+
+    // Speed display (if in vehicle)
+    if
+        is_char_in_any_car $scplayer
+    then
+        int car = store_car_char_is_in_no_save $scplayer
+        float speed = get_car_speed car
+        speed *= 2.5 // rough conversion to km/h
+
+        set_text_colour {rgb} 0x00 0xFF 0x00 {alpha} 255
+        display_text_formatted {pos} 525.0 25.0 {format} "Speed: %.0f km/h" {args} speed
+    else
+        set_text_colour {rgb} 0x80 0x80 0x80 {alpha} 200
+        display_text {pos} 525.0 25.0 {text} "On foot"
+    end
+end
+
+terminate_this_script

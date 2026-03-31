@@ -1,0 +1,208 @@
+// CLEO5 example: Vehicle Spawner Menu
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Press F5 or type "carspawn" to open the menu.
+// Up/Down changes vehicle, Left/Right skips by 10, E spawns.
+// Browses the full GTA SA vehicle model range: 400..611.
+
+{$CLEO .cs}
+
+script_name {name} 'car_menu'
+
+wait {time} 2000
+use_text_commands {state} true
+
+int menuOpen = false
+int currentModel = 400
+
+while true
+    wait {time} 0
+
+    if
+        not is_player_playing $player1
+    then
+        menuOpen = false
+        continue
+    end
+
+    if
+        is_key_pressed {keyCode} KeyCode.F5
+    then
+        menuOpen = 1 - menuOpen
+        while is_key_pressed {keyCode} KeyCode.F5
+            wait {time} 0
+        end
+    end
+
+    if and
+        menuOpen == false
+        test_cheat {input} "carspawn"
+    then
+        menuOpen = true
+    end
+
+    if
+        menuOpen == true
+    then
+        DRAW_MENU(currentModel)
+
+        if
+            is_key_pressed {keyCode} KeyCode.Up
+        then
+            currentModel -= 1
+            currentModel = WRAP_MODEL_ID(currentModel)
+            while is_key_pressed {keyCode} KeyCode.Up
+                wait {time} 0
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} KeyCode.Down
+        then
+            currentModel += 1
+            currentModel = WRAP_MODEL_ID(currentModel)
+            while is_key_pressed {keyCode} KeyCode.Down
+                wait {time} 0
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} KeyCode.Left
+        then
+            currentModel -= 10
+            currentModel = WRAP_MODEL_ID(currentModel)
+            while is_key_pressed {keyCode} KeyCode.Left
+                wait {time} 0
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} KeyCode.Right
+        then
+            currentModel += 10
+            currentModel = WRAP_MODEL_ID(currentModel)
+            while is_key_pressed {keyCode} KeyCode.Right
+                wait {time} 0
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} KeyCode.E
+        then
+            while is_key_pressed {keyCode} KeyCode.E
+                wait {time} 0
+            end
+
+            menuOpen = false
+            int vehicleHandle = SPAWN_CAR_AT_PLAYER(currentModel)
+            if
+                does_vehicle_exist vehicleHandle
+            then
+                warp_char_into_car $scplayer {vehicle} vehicleHandle
+                restore_camera_jumpcut
+                set_camera_behind_player
+                print_help_formatted {text} "~g~Spawned vehicle model %d" {args} currentModel
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} KeyCode.Escape
+        then
+            menuOpen = false
+            while is_key_pressed {keyCode} KeyCode.Escape
+                wait {time} 0
+            end
+        end
+    end
+end
+
+terminate_this_script
+
+
+function DRAW_MENU(modelId: int)
+    int vehicleIndex = modelId
+    vehicleIndex -= 399
+    longString vehicleName = ""
+    vehicleName = get_name_of_vehicle_model {modelId} modelId
+
+    draw_rect {pos} 320.0 160.0 {size} 520.0 220.0 {rgb} 0x00 0x00 0x00 {alpha} 190
+    draw_rect {pos} 180.0 166.0 {size} 170.0 128.0 {rgb} 0x08 0x08 0x08 {alpha} 220
+    draw_rect {pos} 180.0 166.0 {size} 166.0 124.0 {rgb} 0x1A 0x1A 0x1A {alpha} 180
+
+    set_text_font {font} Font.Menu
+    set_text_scale {width} 0.45 {height} 1.4
+    set_text_centre {state} true
+    set_text_colour {rgb} 0xFF 0xD7 0x55 {alpha} 255
+    set_text_edge {size} 1 {rgb} 0 0 0 {alpha} 200
+    set_text_centre_size {width} 640.0
+    display_text_formatted {pos} 320.0 62.0 {format} "Vehicle Spawner"
+
+    set_text_scale {width} 0.28 {height} 1.05
+    set_text_colour {rgb} 0xFF 0xF2 0xB0 {alpha} 255
+    set_text_centre_size {width} 240.0
+    display_text_formatted {pos} 180.0 128.0 {format} "%s" {args} vehicleName
+
+    set_text_scale {width} 0.32 {height} 1.1
+    set_text_colour {rgb} 0xFF 0xFF 0xFF {alpha} 255
+    set_text_centre_size {width} 640.0
+    display_text_formatted {pos} 382.0 108.0 {format} "Vehicle %d / 212" {args} vehicleIndex
+    display_text_formatted {pos} 382.0 130.0 {format} "Model ID: %d" {args} modelId
+
+    set_text_scale {width} 0.26 {height} 0.95
+    set_text_colour {rgb} 0x90 0xD8 0xFF {alpha} 255
+    display_text_formatted {pos} 382.0 160.0 {format} "Up/Down: +/-1"
+    display_text_formatted {pos} 382.0 182.0 {format} "Left/Right: +/-10"
+    display_text_formatted {pos} 382.0 204.0 {format} "E: spawn vehicle"
+    display_text_formatted {pos} 382.0 226.0 {format} "F5 or Esc: close menu"
+
+    set_text_scale {width} 0.22 {height} 0.85
+    set_text_colour {rgb} 0xB0 0xB0 0xB0 {alpha} 220
+    display_text_formatted {pos} 320.0 262.0 {format} "Special vehicles like trains or trailers may behave oddly"
+end
+
+
+function WRAP_MODEL_ID(modelId: int): int
+    if
+        modelId < 400
+    then
+        return 611
+    end
+
+    if
+        modelId > 611
+    then
+        return 400
+    end
+
+    return modelId
+end
+
+
+function SPAWN_CAR_AT_PLAYER(modelId: int): int
+    float playerX, playerY, playerZ
+    float spawnX, spawnY, spawnZ
+    float heading
+
+    playerX, playerY, playerZ = get_char_coordinates $scplayer
+    spawnX, spawnY, spawnZ = get_offset_from_char_in_world_coords $scplayer {offset} 0.0 7.0 0.0
+    heading = get_char_heading $scplayer
+
+    if
+        is_char_in_any_car $scplayer
+    then
+        warp_char_from_car_to_coord $scplayer {pos} playerX playerY playerZ
+        wait {time} 0
+    end
+
+    request_model {modelId} modelId
+    load_all_models_now
+
+    int vehicleHandle = create_car {modelId} modelId {pos} spawnX spawnY spawnZ
+    mark_model_as_no_longer_needed {modelId} modelId
+
+    set_car_heading vehicleHandle {heading} heading
+    change_car_colour vehicleHandle {color1} 1 {color2} 1
+
+    return vehicleHandle
+end

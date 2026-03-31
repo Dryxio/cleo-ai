@@ -1,0 +1,64 @@
+// CLEO5 example: File Read/Write
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Demonstrates reading and writing files.
+// Saves player position to file, loads it back on cheat.
+
+{$CLEO .cs}
+
+script_name {name} 'savepos'
+
+const Save_File = "cleo\saved_position.ini"
+
+wait {time} 2000
+
+while true
+    wait {time} 250
+
+    if
+        not is_player_playing $player1
+    then
+        continue
+    end
+
+    // Save position with "savepos" cheat
+    if
+        test_cheat "savepos"
+    then
+        float x, y, z
+        x, y, z = get_char_coordinates $scplayer
+        float heading = get_char_heading $scplayer
+
+        write_int_to_ini_file x {path} Save_File {section} "Position" {key} "X"
+        write_int_to_ini_file y {path} Save_File {section} "Position" {key} "Y"
+        write_int_to_ini_file z {path} Save_File {section} "Position" {key} "Z"
+        write_int_to_ini_file heading {path} Save_File {section} "Position" {key} "Heading"
+
+        print_help_string {text} "~g~Position saved!"
+    end
+
+    // Load position with "loadpos" cheat
+    if
+        test_cheat "loadpos"
+    then
+        if
+            does_file_exist {path} Save_File
+        then
+            float x, y, z, heading
+            x = read_int_from_ini_file {path} Save_File {section} "Position" {key} "X"
+            y = read_int_from_ini_file {path} Save_File {section} "Position" {key} "Y"
+            z = read_int_from_ini_file {path} Save_File {section} "Position" {key} "Z"
+            heading = read_int_from_ini_file {path} Save_File {section} "Position" {key} "Heading"
+
+            set_char_coordinates $scplayer {xyz} x y z
+            set_char_heading $scplayer {heading} heading
+
+            print_help_string {text} "~g~Position loaded!"
+        else
+            print_help_string {text} "~r~No saved position found!"
+        end
+    end
+end
+
+terminate_this_script

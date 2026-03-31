@@ -1,0 +1,1079 @@
+// CLEO5 custom script: Vanilla Mission Selector
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Launches missions declared in data\script\main.scm using
+// LOAD_AND_LAUNCH_MISSION_INTERNAL instead of custom .cm missions.
+
+{$CLEO .cs}
+{$USE CLEO+}
+
+const
+    Menu_Key = KeyCode.F6
+    Accept_Key = KeyCode.E
+    Close_Key = KeyCode.Escape
+    Mission_Count = 135
+    Rows_Per_Page = 10
+end
+
+script_name {name} 'mis_sel'
+
+wait {time} 2000
+use_text_commands {state} true
+
+int menuOpen = false
+int currentMissionId = 11
+longString selectedMissionName = ""
+
+while true
+    wait {time} 0
+
+    if
+        not is_player_playing $player1
+    then
+        menuOpen = false
+        continue
+    end
+
+    if
+        is_key_pressed {keyCode} Menu_Key
+    then
+        menuOpen = 1 - menuOpen
+        while is_key_pressed {keyCode} Menu_Key
+            wait {time} 0
+        end
+    end
+
+    if and
+        menuOpen == false
+        test_cheat {input} "missions"
+    then
+        menuOpen = true
+    end
+
+    if
+        menuOpen == true
+    then
+        DRAW_MENU(currentMissionId)
+
+        if
+            is_key_pressed {keyCode} KeyCode.Up
+        then
+            currentMissionId -= 1
+            currentMissionId = WRAP_MISSION_ID(currentMissionId)
+            while is_key_pressed {keyCode} KeyCode.Up
+                wait {time} 0
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} KeyCode.Down
+        then
+            currentMissionId += 1
+            currentMissionId = WRAP_MISSION_ID(currentMissionId)
+            while is_key_pressed {keyCode} KeyCode.Down
+                wait {time} 0
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} KeyCode.Left
+        then
+            currentMissionId -= Rows_Per_Page
+            currentMissionId = WRAP_MISSION_ID(currentMissionId)
+            while is_key_pressed {keyCode} KeyCode.Left
+                wait {time} 0
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} KeyCode.Right
+        then
+            currentMissionId += Rows_Per_Page
+            currentMissionId = WRAP_MISSION_ID(currentMissionId)
+            while is_key_pressed {keyCode} KeyCode.Right
+                wait {time} 0
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} Accept_Key
+        then
+            while is_key_pressed {keyCode} Accept_Key
+                wait {time} 0
+            end
+
+            if
+                CAN_LAUNCH_VANILLA_MISSION()
+            then
+                selectedMissionName = GET_MISSION_NAME(currentMissionId)
+                menuOpen = false
+                LAUNCH_VANILLA_MISSION(currentMissionId, selectedMissionName)
+            else
+                print_help_string {text} "~r~Cannot start a mission right now.~n~~w~Be on foot and out of other missions."
+            end
+        end
+
+        if
+            is_key_pressed {keyCode} Close_Key
+        then
+            menuOpen = false
+            while is_key_pressed {keyCode} Close_Key
+                wait {time} 0
+            end
+        end
+    end
+end
+
+terminate_this_custom_script
+
+
+function DRAW_MENU(currentMissionId: int)
+    int page = currentMissionId
+    int totalPages = Mission_Count
+    int pageStart = currentMissionId
+    int rowMissionId
+
+    page /= Rows_Per_Page
+    page += 1
+
+    totalPages -= 1
+    totalPages /= Rows_Per_Page
+    totalPages += 1
+
+    pageStart /= Rows_Per_Page
+    pageStart *= Rows_Per_Page
+
+    draw_rect {pos} 320.0 190.0 {size} 540.0 308.0 {rgb} 0x00 0x00 0x00 {alpha} 190
+    draw_rect {pos} 320.0 58.0 {size} 540.0 34.0 {rgb} 0x1A 0x1A 0x1A {alpha} 220
+
+    set_text_font {font} Font.Menu
+    set_text_scale {width} 0.44 {height} 1.35
+    set_text_centre {state} true
+    set_text_colour {rgb} 0xFF 0xD7 0x55 {alpha} 255
+    set_text_edge {size} 1 {rgb} 0 0 0 {alpha} 220
+    set_text_centre_size {width} 640.0
+    display_text_formatted {pos} 320.0 44.0 {format} "Vanilla Mission Selector"
+
+    set_text_scale {width} 0.24 {height} 0.92
+    set_text_colour {rgb} 0xB8 0xDC 0xFF {alpha} 255
+    display_text_formatted {pos} 320.0 78.0 {format} "Up/Down: browse   Left/Right: page   E: launch   F6 or Esc: close"
+
+    rowMissionId = pageStart
+    DRAW_ROW(rowMissionId, 108.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 130.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 152.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 174.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 196.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 218.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 240.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 262.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 284.0, currentMissionId)
+    rowMissionId += 1
+    DRAW_ROW(rowMissionId, 306.0, currentMissionId)
+
+    set_text_scale {width} 0.23 {height} 0.88
+    set_text_colour {rgb} 0xD0 0xD0 0xD0 {alpha} 220
+    display_text_formatted {pos} 320.0 342.0 {format} "Mission ID %d / %d    Page %d / %d" {args} currentMissionId Mission_Count page totalPages
+end
+
+
+function DRAW_ROW(missionId: int, rowY: float, currentMissionId: int)
+    longString missionName = ""
+    longString rowText = ""
+    float rowHighlightY = rowY
+
+    if
+        missionId >= Mission_Count
+    then
+        return
+    end
+
+    missionName = GET_MISSION_NAME(missionId)
+    rowHighlightY += 8.0
+    string_format rowText = "%03d  %s" {args} missionId missionName
+
+    set_text_font {font} Font.Menu
+    set_text_scale {width} 0.28 {height} 0.98
+    set_text_centre {state} false
+    set_text_edge {size} 1 {rgb} 0 0 0 {alpha} 220
+
+    if
+        missionId == currentMissionId
+    then
+        draw_rect {pos} 320.0 rowHighlightY {size} 478.0 18.0 {rgb} 0x56 0x3C 0x08 {alpha} 170
+        set_text_colour {rgb} 0xFF 0xE4 0x8A {alpha} 255
+        display_text_formatted {pos} 92.0 rowY {format} "> %s" {args} rowText
+    else
+        set_text_colour {rgb} 0xE0 0xE0 0xE0 {alpha} 235
+        display_text_formatted {pos} 92.0 rowY {format} "  %s" {args} rowText
+    end
+end
+
+
+function WRAP_MISSION_ID(missionId: int): int
+    int lastMissionId = Mission_Count
+    lastMissionId -= 1
+
+    if
+        missionId < 0
+    then
+        return lastMissionId
+    end
+
+    if
+        missionId >= Mission_Count
+    then
+        return 0
+    end
+
+    return missionId
+end
+
+
+function CAN_LAUNCH_VANILLA_MISSION(): logical
+    if or
+        is_on_mission
+        not can_player_start_mission $player1
+        is_char_in_any_car $scplayer
+        is_char_getting_in_to_a_car $scplayer
+    then
+        return false
+    end
+
+    return true
+end
+
+
+function LAUNCH_VANILLA_MISSION(missionId: int, missionName: string)
+    clear_help
+    clear_prints
+    set_on_mission {status} true
+    print_help_formatted {text} "~g~Launching~s~ %s" {args} missionName
+    load_and_launch_mission_internal {index} missionId
+end
+
+
+function GET_MISSION_NAME(missionId: int): string
+    longString missionName = "Unknown Mission"
+
+    if
+        missionId == 0
+    then
+        missionName = "Initial 1"
+    end
+
+    if
+        missionId == 1
+    then
+        missionName = "Initial 2"
+    end
+
+    if
+        missionId == 2
+    then
+        missionName = "Intro"
+    end
+
+    if
+        missionId == 3
+    then
+        missionName = "Video Game: They Crawled From Uranus"
+    end
+
+    if
+        missionId == 4
+    then
+        missionName = "Video Game: Duality"
+    end
+
+    if
+        missionId == 5
+    then
+        missionName = "Video Game: Go Go Space Monkey"
+    end
+
+    if
+        missionId == 6
+    then
+        missionName = "Video Game: Let's Get Ready To Bumble"
+    end
+
+    if
+        missionId == 7
+    then
+        missionName = "Video Game: Inside Track Betting"
+    end
+
+    if
+        missionId == 8
+    then
+        missionName = "Pool"
+    end
+
+    if
+        missionId == 9
+    then
+        missionName = "Lowrider (Bet And Dance)"
+    end
+
+    if
+        missionId == 10
+    then
+        missionName = "Beefy Baron"
+    end
+
+    if
+        missionId == 11
+    then
+        missionName = "Big Smoke"
+    end
+
+    if
+        missionId == 12
+    then
+        missionName = "Ryder"
+    end
+
+    if
+        missionId == 13
+    then
+        missionName = "Tagging Up Turf"
+    end
+
+    if
+        missionId == 14
+    then
+        missionName = "Cleaning The Hood"
+    end
+
+    if
+        missionId == 15
+    then
+        missionName = "Drive-Thru"
+    end
+
+    if
+        missionId == 16
+    then
+        missionName = "Nines And AK's"
+    end
+
+    if
+        missionId == 17
+    then
+        missionName = "Drive-By"
+    end
+
+    if
+        missionId == 18
+    then
+        missionName = "Sweet's Girl"
+    end
+
+    if
+        missionId == 19
+    then
+        missionName = "Cesar Vialpando"
+    end
+
+    if
+        missionId == 20
+    then
+        missionName = "Los Sepulcros"
+    end
+
+    if
+        missionId == 21
+    then
+        missionName = "Doberman"
+    end
+
+    if
+        missionId == 22
+    then
+        missionName = "Burning Desire"
+    end
+
+    if
+        missionId == 23
+    then
+        missionName = "Gray Imports"
+    end
+
+    if
+        missionId == 24
+    then
+        missionName = "Home Invasion"
+    end
+
+    if
+        missionId == 25
+    then
+        missionName = "Catalyst"
+    end
+
+    if
+        missionId == 26
+    then
+        missionName = "Robbing Uncle Sam"
+    end
+
+    if
+        missionId == 27
+    then
+        missionName = "OG Loc"
+    end
+
+    if
+        missionId == 28
+    then
+        missionName = "Running Dog"
+    end
+
+    if
+        missionId == 29
+    then
+        missionName = "Wrong Side of the Tracks"
+    end
+
+    if
+        missionId == 30
+    then
+        missionName = "Just Business"
+    end
+
+    if
+        missionId == 31
+    then
+        missionName = "Life's a Beach"
+    end
+
+    if
+        missionId == 32
+    then
+        missionName = "Madd Dogg's Rhymes"
+    end
+
+    if
+        missionId == 33
+    then
+        missionName = "Management Issues"
+    end
+
+    if
+        missionId == 34
+    then
+        missionName = "House Party"
+    end
+
+    if
+        missionId == 35
+    then
+        missionName = "Race Tournament / 8-track / Dirt Track"
+    end
+
+    if
+        missionId == 36
+    then
+        missionName = "Lowrider (High Stakes)"
+    end
+
+    if
+        missionId == 37
+    then
+        missionName = "Reuniting The Families"
+    end
+
+    if
+        missionId == 38
+    then
+        missionName = "The Green Sabre"
+    end
+
+    if
+        missionId == 39
+    then
+        missionName = "Badlands"
+    end
+
+    if
+        missionId == 40
+    then
+        missionName = "First Date"
+    end
+
+    if
+        missionId == 41
+    then
+        missionName = "Local Liquor Store"
+    end
+
+    if
+        missionId == 42
+    then
+        missionName = "Small Town Bank"
+    end
+
+    if
+        missionId == 43
+    then
+        missionName = "Tanker Commander"
+    end
+
+    if
+        missionId == 44
+    then
+        missionName = "Against All Odds"
+    end
+
+    if
+        missionId == 45
+    then
+        missionName = "King in Exile"
+    end
+
+    if
+        missionId == 46
+    then
+        missionName = "Body Harvest"
+    end
+
+    if
+        missionId == 47
+    then
+        missionName = "Are you going to San Fierro?"
+    end
+
+    if
+        missionId == 48
+    then
+        missionName = "Wu Zi Mu / Farewell, My Love..."
+    end
+
+    if
+        missionId == 49
+    then
+        missionName = "Wear Flowers In Your Hair"
+    end
+
+    if
+        missionId == 50
+    then
+        missionName = "Deconstruction"
+    end
+
+    if
+        missionId == 51
+    then
+        missionName = "555 WE TIP"
+    end
+
+    if
+        missionId == 52
+    then
+        missionName = "Snail Trail"
+    end
+
+    if
+        missionId == 53
+    then
+        missionName = "Mountain Cloud Boys"
+    end
+
+    if
+        missionId == 54
+    then
+        missionName = "Ran Fa Li"
+    end
+
+    if
+        missionId == 55
+    then
+        missionName = "Lure"
+    end
+
+    if
+        missionId == 56
+    then
+        missionName = "Amphibious Assault"
+    end
+
+    if
+        missionId == 57
+    then
+        missionName = "The Da Nang Thang"
+    end
+
+    if
+        missionId == 58
+    then
+        missionName = "Photo Opportunity"
+    end
+
+    if
+        missionId == 59
+    then
+        missionName = "Jizzy"
+    end
+
+    if
+        missionId == 60
+    then
+        missionName = "Outrider"
+    end
+
+    if
+        missionId == 61
+    then
+        missionName = "Ice Cold Killa"
+    end
+
+    if
+        missionId == 62
+    then
+        missionName = "Toreno's Last Flight"
+    end
+
+    if
+        missionId == 63
+    then
+        missionName = "Yay Ka-Boom-Boom"
+    end
+
+    if
+        missionId == 64
+    then
+        missionName = "Pier 69"
+    end
+
+    if
+        missionId == 65
+    then
+        missionName = "T-Bone Mendez"
+    end
+
+    if
+        missionId == 66
+    then
+        missionName = "Mike Toreno"
+    end
+
+    if
+        missionId == 67
+    then
+        missionName = "Zeroing In"
+    end
+
+    if
+        missionId == 68
+    then
+        missionName = "Test Drive"
+    end
+
+    if
+        missionId == 69
+    then
+        missionName = "Customs Fast Track"
+    end
+
+    if
+        missionId == 70
+    then
+        missionName = "Puncture Wounds"
+    end
+
+    if
+        missionId == 71
+    then
+        missionName = "Back to School"
+    end
+
+    if
+        missionId == 72
+    then
+        missionName = "Air Raid"
+    end
+
+    if
+        missionId == 73
+    then
+        missionName = "Supply Lines..."
+    end
+
+    if
+        missionId == 74
+    then
+        missionName = "New Model Army"
+    end
+
+    if
+        missionId == 75
+    then
+        missionName = "Monster"
+    end
+
+    if
+        missionId == 76
+    then
+        missionName = "Highjack"
+    end
+
+    if
+        missionId == 77
+    then
+        missionName = "Interdiction"
+    end
+
+    if
+        missionId == 78
+    then
+        missionName = "Verdant Meadows"
+    end
+
+    if
+        missionId == 79
+    then
+        missionName = "N.O.E."
+    end
+
+    if
+        missionId == 80
+    then
+        missionName = "Stowaway"
+    end
+
+    if
+        missionId == 81
+    then
+        missionName = "Black Project"
+    end
+
+    if
+        missionId == 82
+    then
+        missionName = "Green Goo"
+    end
+
+    if
+        missionId == 83
+    then
+        missionName = "Learning to Fly"
+    end
+
+    if
+        missionId == 84
+    then
+        missionName = "Fender Ketchup"
+    end
+
+    if
+        missionId == 85
+    then
+        missionName = "Explosive Situation"
+    end
+
+    if
+        missionId == 86
+    then
+        missionName = "You've Had Your Chips"
+    end
+
+    if
+        missionId == 87
+    then
+        missionName = "Fish in a Barrel"
+    end
+
+    if
+        missionId == 88
+    then
+        missionName = "Don Peyote"
+    end
+
+    if
+        missionId == 89
+    then
+        missionName = "Intensive Care"
+    end
+
+    if
+        missionId == 90
+    then
+        missionName = "The Meat Business"
+    end
+
+    if
+        missionId == 91
+    then
+        missionName = "Freefall"
+    end
+
+    if
+        missionId == 92
+    then
+        missionName = "Saint Mark's Bistro"
+    end
+
+    if
+        missionId == 93
+    then
+        missionName = "Misappropriation"
+    end
+
+    if
+        missionId == 94
+    then
+        missionName = "High Noon"
+    end
+
+    if
+        missionId == 95
+    then
+        missionName = "Madd Dogg"
+    end
+
+    if
+        missionId == 96
+    then
+        missionName = "Architectural Espionage"
+    end
+
+    if
+        missionId == 97
+    then
+        missionName = "Key To Her Heart"
+    end
+
+    if
+        missionId == 98
+    then
+        missionName = "Dam And Blast"
+    end
+
+    if
+        missionId == 99
+    then
+        missionName = "Cop Wheels"
+    end
+
+    if
+        missionId == 100
+    then
+        missionName = "Up, Up and Away!"
+    end
+
+    if
+        missionId == 101
+    then
+        missionName = "Breaking the Bank at Caligula's"
+    end
+
+    if
+        missionId == 102
+    then
+        missionName = "A Home In The Hills"
+    end
+
+    if
+        missionId == 103
+    then
+        missionName = "Vertical Bird"
+    end
+
+    if
+        missionId == 104
+    then
+        missionName = "Home Coming"
+    end
+
+    if
+        missionId == 105
+    then
+        missionName = "Cut Throat Business"
+    end
+
+    if
+        missionId == 106
+    then
+        missionName = "Beat Down on B Dup"
+    end
+
+    if
+        missionId == 107
+    then
+        missionName = "Grove 4 Life"
+    end
+
+    if
+        missionId == 108
+    then
+        missionName = "Riot"
+    end
+
+    if
+        missionId == 109
+    then
+        missionName = "Los Desperados"
+    end
+
+    if
+        missionId == 110
+    then
+        missionName = "End Of The Line (1)"
+    end
+
+    if
+        missionId == 111
+    then
+        missionName = "End Of The Line (2)"
+    end
+
+    if
+        missionId == 112
+    then
+        missionName = "End Of The Line (3)"
+    end
+
+    if
+        missionId == 113
+    then
+        missionName = "Shooting range"
+    end
+
+    if
+        missionId == 114
+    then
+        missionName = "Los Santos Gym Fight School"
+    end
+
+    if
+        missionId == 115
+    then
+        missionName = "San Fierro Gym Fight School"
+    end
+
+    if
+        missionId == 116
+    then
+        missionName = "Las Venturas Gym Fight School"
+    end
+
+    if
+        missionId == 117
+    then
+        missionName = "Trucking"
+    end
+
+    if
+        missionId == 118
+    then
+        missionName = "Quarry"
+    end
+
+    if
+        missionId == 119
+    then
+        missionName = "Boat School"
+    end
+
+    if
+        missionId == 120
+    then
+        missionName = "Bike School"
+    end
+
+    if
+        missionId == 121
+    then
+        missionName = "Taxi-Driver Sub-Mission"
+    end
+
+    if
+        missionId == 122
+    then
+        missionName = "Paramedic Sub-Mission"
+    end
+
+    if
+        missionId == 123
+    then
+        missionName = "Firefighter Sub-Mission"
+    end
+
+    if
+        missionId == 124
+    then
+        missionName = "Vigilante Sub-Mission"
+    end
+
+    if
+        missionId == 125
+    then
+        missionName = "Burglary Sub-Mission"
+    end
+
+    if
+        missionId == 126
+    then
+        missionName = "Freight Train Sub-Mission"
+    end
+
+    if
+        missionId == 127
+    then
+        missionName = "Pimping Sub-Mission"
+    end
+
+    if
+        missionId == 128
+    then
+        missionName = "Arena Mission: Blood Ring"
+    end
+
+    if
+        missionId == 129
+    then
+        missionName = "Arena Mission: Kickstart"
+    end
+
+    if
+        missionId == 130
+    then
+        missionName = "Beat the Cock!"
+    end
+
+    if
+        missionId == 131
+    then
+        missionName = "Courier"
+    end
+
+    if
+        missionId == 132
+    then
+        missionName = "The Chiliad Challenge"
+    end
+
+    if
+        missionId == 133
+    then
+        missionName = "BMX / NRG-500 STUNT Mission"
+    end
+
+    if
+        missionId == 134
+    then
+        missionName = "Buy Properties Mission"
+    end
+
+    return missionName
+end

@@ -1,0 +1,94 @@
+// CLEO5 custom script: Sync in-game time with OS time
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Requires CLEO+ for GET_LOCAL_TIME.
+// Keeps the in-game hour and minute aligned with the PC's local time.
+// When the real date changes while the game is running, the in-game day is advanced once.
+
+{$CLEO .cs}
+{$USE CLEO+}
+
+script_name {name} 'osclock'
+
+wait {time} 2000
+use_text_commands {state} true
+
+int initialized = false
+int lastYear = 0
+int lastMonth = 0
+int lastDay = 0
+
+int osYear = 0
+int osMonth = 0
+int osWeekDay = 0
+int osDay = 0
+int osHour = 0
+int osMinute = 0
+int osSecond = 0
+int osMillisecond = 0
+
+int gameHour = 0
+int gameMinute = 0
+
+while true
+    wait {time} 0
+
+    if
+        not is_player_playing $player1
+    then
+        initialized = false
+        continue
+    end
+
+    osYear, osMonth, osWeekDay, osDay, osHour, osMinute, osSecond, osMillisecond = get_local_time
+
+    if
+        initialized == false
+    then
+        lastYear = osYear
+        lastMonth = osMonth
+        lastDay = osDay
+        initialized = true
+
+        print_help_string {text} "~g~OS clock sync enabled"
+    else
+        if
+            osYear <> lastYear
+        then
+            set_time_one_day_forward
+        else
+            if
+                osMonth <> lastMonth
+            then
+                set_time_one_day_forward
+            else
+                if
+                    osDay <> lastDay
+                then
+                    set_time_one_day_forward
+                end
+            end
+        end
+
+        lastYear = osYear
+        lastMonth = osMonth
+        lastDay = osDay
+    end
+
+    gameHour, gameMinute = get_time_of_day
+
+    if
+        gameHour <> osHour
+    then
+        set_time_of_day {hours} osHour {minutes} osMinute
+    else
+        if
+            gameMinute <> osMinute
+        then
+            set_time_of_day {hours} osHour {minutes} osMinute
+        end
+    end
+end
+
+terminate_this_script

@@ -1,0 +1,48 @@
+// CLEO5 example: Keyboard Input
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Demonstrates keyboard input detection.
+// Press F5 to toggle god mode on/off.
+
+{$CLEO .cs}
+
+script_name {name} 'godmode'
+
+wait {time} 2000
+
+int godEnabled = 0
+
+while true
+    wait {time} 0
+
+    if
+        not is_player_playing $player1
+    then
+        continue
+    end
+
+    // Check for F5 key press (key code 116)
+    if
+        is_key_pressed {keyCode} KeyCode.F5
+    then
+        if
+            godEnabled == 0
+        then
+            godEnabled = 1
+            set_char_proofs $scplayer {bulletProof} true {fireProof} true {explosionProof} true {collisionProof} true {meleeProof} true
+            print_help_string {text} "~g~God mode ON"
+        else
+            godEnabled = 0
+            set_char_proofs $scplayer {bulletProof} false {fireProof} false {explosionProof} false {collisionProof} false {meleeProof} false
+            print_help_string {text} "~r~God mode OFF"
+        end
+
+        // Wait for key release to prevent toggle spam
+        while is_key_pressed {keyCode} KeyCode.F5
+            wait {time} 0
+        end
+    end
+end
+
+terminate_this_script

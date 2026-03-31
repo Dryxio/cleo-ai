@@ -1,0 +1,283 @@
+// CLEO5 custom script: Player Noclip
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Toggle noclip with Ctrl + D.
+// Move with W/A/S/D, go up with Q, go down with E.
+// Hold SPACE to show live coordinates.
+
+{$CLEO .cs}
+
+const
+    Toggle_Key = KeyCode.D
+    Forward_Key = KeyCode.W
+    Back_Key = KeyCode.S
+    Left_Key = KeyCode.A
+    Right_Key = KeyCode.D
+    Up_Key = KeyCode.Q
+    Down_Key = KeyCode.E
+    Coord_Key = KeyCode.Space
+    Move_Step = 0.80
+    Vertical_Step = 0.55
+end
+
+script_name {name} 'noclip'
+
+wait {time} 2000
+use_text_commands {state} true
+
+int noclipEnabled = false
+int toggleLatch = false
+float noclipX = 0.0
+float noclipY = 0.0
+float noclipZ = 0.0
+
+while true
+    wait {time} 0
+
+    if
+        not is_player_playing $player1
+    then
+        if
+            noclipEnabled == true
+        then
+            DISABLE_NOCLIP(noclipX, noclipY)
+            noclipEnabled = false
+        end
+
+        toggleLatch = false
+        continue
+    end
+
+    if and
+        IS_CTRL_HELD()
+        is_key_pressed {keyCode} Toggle_Key
+    then
+        if
+            toggleLatch == false
+        then
+            toggleLatch = true
+
+            if
+                noclipEnabled == false
+            then
+                noclipX, noclipY, noclipZ = ENABLE_NOCLIP()
+                noclipEnabled = true
+            else
+                DISABLE_NOCLIP(noclipX, noclipY)
+                noclipEnabled = false
+            end
+        end
+    else
+        toggleLatch = false
+    end
+
+    if
+        noclipEnabled == true
+    then
+        noclipX, noclipY, noclipZ = PROCESS_NOCLIP(noclipX, noclipY, noclipZ)
+    end
+end
+
+terminate_this_script
+
+
+function ENABLE_NOCLIP(): float, float, float
+    float playerX, playerY, playerZ
+
+    playerX, playerY, playerZ = get_char_coordinates $scplayer
+
+    if
+        is_char_in_any_car $scplayer
+    then
+        warp_char_from_car_to_coord $scplayer {pos} playerX playerY playerZ
+        wait {time} 0
+    end
+
+    clear_char_tasks_immediately $scplayer
+    freeze_char_position $scplayer {state} true
+    set_char_collision $scplayer {state} false
+    set_char_velocity $scplayer {x} 0.0 {y} 0.0 {z} 0.0
+    set_char_coordinates $scplayer {xyz} playerX playerY playerZ
+
+    print_help_string {text} "~g~Noclip ON~n~~w~W/A/S/D move  Q/E up-down~n~Hold SPACE for coordinates"
+    return playerX playerY playerZ
+end
+
+
+function DISABLE_NOCLIP(playerX: float, playerY: float)
+    request_collision {pos} playerX playerY
+    load_all_models_now
+
+    set_char_velocity $scplayer {x} 0.0 {y} 0.0 {z} 0.0
+    set_char_collision $scplayer {state} true
+    freeze_char_position $scplayer {state} false
+    clear_char_tasks_immediately $scplayer
+    restore_camera_jumpcut
+    set_camera_behind_player
+
+    print_help_string {text} "~r~Noclip OFF"
+end
+
+
+function PROCESS_NOCLIP(playerX: float, playerY: float, playerZ: float): float, float, float
+    float camX, camY, camZ
+    float pointX, pointY, pointZ
+    float forwardX, forwardY
+    float rightX, rightY
+    float flatLengthSquared
+    float flatLength
+    float moveX, moveY, moveZ
+    float stepX, stepY
+    float heading
+
+    camX, camY, camZ = get_active_camera_coordinates
+    pointX, pointY, pointZ = get_active_camera_point_at
+
+    forwardX = pointX
+    forwardX -= camX
+    forwardY = pointY
+    forwardY -= camY
+
+    flatLengthSquared = forwardX
+    flatLengthSquared *= forwardX
+
+    flatLength = forwardY
+    flatLength *= forwardY
+    flatLengthSquared += flatLength
+    flatLength = sqrt {num} flatLengthSquared
+
+    if
+        flatLength > 0.001
+    then
+        forwardX /= flatLength
+        forwardY /= flatLength
+    else
+        forwardX = 0.0
+        forwardY = 1.0
+    end
+
+    rightX = forwardY
+    rightY = forwardX
+    rightY *= -1.0
+
+    moveX = 0.0
+    moveY = 0.0
+    moveZ = 0.0
+
+    if
+        is_key_pressed {keyCode} Forward_Key
+    then
+        stepX = forwardX
+        stepX *= Move_Step
+        moveX += stepX
+
+        stepY = forwardY
+        stepY *= Move_Step
+        moveY += stepY
+    end
+
+    if
+        is_key_pressed {keyCode} Back_Key
+    then
+        stepX = forwardX
+        stepX *= Move_Step
+        moveX -= stepX
+
+        stepY = forwardY
+        stepY *= Move_Step
+        moveY -= stepY
+    end
+
+    if
+        is_key_pressed {keyCode} Left_Key
+    then
+        stepX = rightX
+        stepX *= Move_Step
+        moveX -= stepX
+
+        stepY = rightY
+        stepY *= Move_Step
+        moveY -= stepY
+    end
+
+    if and
+        not IS_CTRL_HELD()
+        is_key_pressed {keyCode} Right_Key
+    then
+        stepX = rightX
+        stepX *= Move_Step
+        moveX += stepX
+
+        stepY = rightY
+        stepY *= Move_Step
+        moveY += stepY
+    end
+
+    if
+        is_key_pressed {keyCode} Up_Key
+    then
+        moveZ += Vertical_Step
+    end
+
+    if
+        is_key_pressed {keyCode} Down_Key
+    then
+        moveZ -= Vertical_Step
+    end
+
+    playerX += moveX
+    playerY += moveY
+    playerZ += moveZ
+
+    request_collision {pos} playerX playerY
+    set_char_velocity $scplayer {x} 0.0 {y} 0.0 {z} 0.0
+    set_char_coordinates $scplayer {xyz} playerX playerY playerZ
+
+    heading = get_heading_from_vector_2d {x} forwardX {y} forwardY
+    set_char_heading $scplayer {heading} heading
+
+    DRAW_STATUS()
+
+    if
+        is_key_pressed {keyCode} Coord_Key
+    then
+        DRAW_COORDS(playerX, playerY, playerZ)
+    end
+
+    return playerX playerY playerZ
+end
+
+
+function DRAW_STATUS()
+    draw_rect {pos} 485.0 28.0 {size} 290.0 34.0 {rgb} 0x00 0x00 0x00 {alpha} 150
+
+    set_text_font {font} Font.Subtitles
+    set_text_scale {width} 0.27 {height} 0.95
+    set_text_colour {rgb} 0x90 0xFF 0x90 {alpha} 255
+    set_text_edge {size} 1 {rgb} 0 0 0 {alpha} 220
+    display_text_formatted {pos} 345.0 16.0 {format} "NOCLIP  W/A/S/D move  Q/E up-down  Ctrl+D off"
+end
+
+
+function DRAW_COORDS(playerX: float, playerY: float, playerZ: float)
+    draw_rect {pos} 515.0 66.0 {size} 230.0 42.0 {rgb} 0x00 0x00 0x00 {alpha} 165
+
+    set_text_font {font} Font.Subtitles
+    set_text_scale {width} 0.29 {height} 1.00
+    set_text_colour {rgb} 0xFF 0xF4 0xA8 {alpha} 255
+    set_text_edge {size} 1 {rgb} 0 0 0 {alpha} 220
+    display_text_formatted {pos} 405.0 48.0 {format} "X: %.2f  Y: %.2f  Z: %.2f" {args} playerX playerY playerZ
+end
+
+
+function IS_CTRL_HELD(): logical
+    if or
+        is_key_pressed {keyCode} KeyCode.LeftControl
+        is_key_pressed {keyCode} KeyCode.RightControl
+    then
+        return true
+    end
+
+    return false
+end

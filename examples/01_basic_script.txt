@@ -1,0 +1,20 @@
+// CLEO5 example: Basic Script Template
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Simplest possible CLEO script - waits for game load, prints a message, then exits.
+
+{$CLEO .cs}
+
+script_name {name} 'basic'
+
+// Wait for game to fully load and fade in
+wait {time} 4000
+
+// Show a help message
+print_help_string {text} "~g~Basic CLEO script is running!"
+
+// Debug trace (visible in CLEO log)
+trace "Basic script executed successfully"
+
+terminate_this_custom_script

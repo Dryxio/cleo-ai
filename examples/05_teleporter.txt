@@ -1,0 +1,79 @@
+// CLEO5 example: Location Teleporter
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Press Numpad 1-4 to teleport to different locations.
+// Demonstrates arrays and coordinate handling.
+
+{$CLEO .cs}
+
+script_name {name} 'teleport'
+
+wait {time} 2000
+
+while true
+    wait {time} 0
+
+    if
+        not is_player_playing $player1
+    then
+        continue
+    end
+
+    // Grove Street
+    if
+        is_key_pressed {keyCode} KeyCode.Numpad1
+    then
+        TELEPORT_PLAYER(2495.0, -1687.0, 14.0)
+        print_help_string {text} "~g~Teleported to Grove Street"
+    end
+
+    // Las Venturas Strip
+    if
+        is_key_pressed {keyCode} KeyCode.Numpad2
+    then
+        TELEPORT_PLAYER(2028.0, 1343.0, 11.0)
+        print_help_string {text} "~g~Teleported to Las Venturas"
+    end
+
+    // San Fierro Garage
+    if
+        is_key_pressed {keyCode} KeyCode.Numpad3
+    then
+        TELEPORT_PLAYER(-2026.7, 160.3, 28.5)
+        print_help_string {text} "~g~Teleported to San Fierro"
+    end
+
+    // Mt. Chiliad summit
+    if
+        is_key_pressed {keyCode} KeyCode.Numpad4
+    then
+        TELEPORT_PLAYER(-2233.0, -1737.0, 480.0)
+        print_help_string {text} "~g~Teleported to Mt. Chiliad"
+    end
+end
+
+terminate_this_script
+
+
+function TELEPORT_PLAYER(x: float, y: float, z: float)
+    // Fade out
+    do_fade {time} 250 {direction} Fade.Out
+    wait {time} 250
+
+    // Remove from vehicle if in one
+    if
+        is_char_in_any_car $scplayer
+    then
+        warp_char_from_car_to_coord $scplayer {pos} x y z
+    else
+        set_char_coordinates $scplayer {xyz} x y z
+    end
+
+    // Make sure collision is loaded at new location
+    request_collision {pos} x y
+    load_all_models_now
+
+    // Fade back in
+    do_fade {time} 250 {direction} Fade.In
+end
