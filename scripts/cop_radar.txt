@@ -1,0 +1,219 @@
+// CLEO5 custom script: Show cops on radar
+// Sanny Builder 4
+// mode: GTA SA (v1.0 - SBL)
+//
+// Requires CLEO+ for recursive pool iteration.
+// Shows loaded cop peds and police vehicles on the minimap radar.
+
+{$CLEO .cs}
+{$USE CLEO+}
+
+const
+    Refresh_Time = 1000
+    // Keep this small enough to fit CLEO local variable limits.
+    Max_Tracked_Blips = 24
+end
+
+script_name {name} 'copradar'
+
+wait {time} 2000
+use_text_commands {state} true
+
+int trackedBlips[24]
+int trackedCount = 0
+int shownStatus = false
+int index = 0
+int progress = 0
+int pedHandle = 0
+int vehicleHandle = 0
+int blipHandle = -1
+
+while true
+    wait {time} Refresh_Time
+
+    if
+        not is_player_playing $player1
+    then
+        index = 0
+        while index < trackedCount
+            if
+                does_blip_exist trackedBlips[index]
+            then
+                remove_blip trackedBlips[index]
+            end
+
+            trackedBlips[index] = -1
+            index += 1
+        end
+
+        trackedCount = 0
+        shownStatus = false
+        continue
+    end
+
+    if
+        shownStatus == false
+    then
+        print_help_string {text} "~b~Cop radar enabled"
+        shownStatus = true
+    end
+
+    index = 0
+    while index < trackedCount
+        if
+            does_blip_exist trackedBlips[index]
+        then
+            remove_blip trackedBlips[index]
+        end
+
+        trackedBlips[index] = -1
+        index += 1
+    end
+
+    trackedCount = 0
+
+    progress = 0
+    while get_any_char_no_save_recursive progress progress pedHandle
+        if
+            trackedCount >= Max_Tracked_Blips
+        then
+            break
+        end
+
+        if and
+            IS_COP_PED(pedHandle)
+            not is_char_in_any_car pedHandle
+        then
+            blipHandle = MAKE_COP_PED_BLIP(pedHandle)
+
+            if
+                blipHandle <> -1
+            then
+                trackedBlips[trackedCount] = blipHandle
+                trackedCount += 1
+            end
+        end
+    end
+
+    progress = 0
+    while get_any_car_no_save_recursive progress progress vehicleHandle
+        if
+            trackedCount >= Max_Tracked_Blips
+        then
+            break
+        end
+
+        if
+            IS_POLICE_VEHICLE(vehicleHandle)
+        then
+            blipHandle = MAKE_POLICE_VEHICLE_BLIP(vehicleHandle)
+
+            if
+                blipHandle <> -1
+            then
+                trackedBlips[trackedCount] = blipHandle
+                trackedCount += 1
+            end
+        end
+    end
+end
+
+terminate_this_script
+
+
+function IS_COP_PED(pedHandle: int): logical
+    int pedTypeId = 0
+
+    if
+        is_char_dead pedHandle
+    then
+        return false
+    end
+
+    pedTypeId = get_ped_type pedHandle
+
+    if
+        pedTypeId == 6 // PedType.Cop
+    then
+        return true
+    end
+
+    return false
+end
+
+
+function IS_POLICE_VEHICLE(vehicleHandle: int): logical
+    int modelId = 0
+    int driverHandle = 0
+
+    if
+        is_car_dead vehicleHandle
+    then
+        return false
+    end
+
+    modelId = get_car_model {vehicle} vehicleHandle
+
+    if or
+        modelId == 427
+        modelId == 430
+        modelId == 432
+        modelId == 433
+        modelId == 497
+        modelId == 523
+        modelId == 528
+        modelId == 596
+        modelId == 597
+        modelId == 598
+        modelId == 599
+        modelId == 601
+    then
+        return true
+    end
+
+    driverHandle = get_driver_of_car {vehicle} vehicleHandle
+
+    if
+        IS_COP_PED(driverHandle)
+    then
+        return true
+    end
+
+    return false
+end
+
+
+function MAKE_COP_PED_BLIP(pedHandle: int): int
+    int blipHandle = -1
+
+    if
+        is_char_dead pedHandle
+    then
+        return -1
+    end
+
+    blipHandle = add_blip_for_char {char} pedHandle
+    change_blip_display blipHandle {display} BlipDisplay.BlipOnly
+    change_blip_colour blipHandle {color} BlipColor.Blue
+    change_blip_scale blipHandle {size} 2
+
+    return blipHandle
+end
+
+
+function MAKE_POLICE_VEHICLE_BLIP(vehicleHandle: int): int
+    int blipHandle = -1
+
+    if
+        is_car_dead vehicleHandle
+    then
+        return -1
+    end
+
+    blipHandle = add_blip_for_car {vehicle} vehicleHandle
+    change_blip_display blipHandle {display} BlipDisplay.BlipOnly
+    change_blip_colour blipHandle {color} BlipColor.Cyan
+    change_blip_scale blipHandle {size} 3
+
+    return blipHandle
+end

@@ -10,8 +10,10 @@ You are assisting with writing CLEO scripts for GTA San Andreas using CLEO5 and 
 4. **Every loop MUST contain `wait {time} 0`** (or higher). Loops without wait will freeze the game.
 5. **Always clean up models.** After `request_model` + `load_all_models_now`, always call `mark_model_as_no_longer_needed` when done.
 6. **Use enums, not magic numbers.** Check `reference/enums.md` for the correct enum values (e.g., `Fade.Out` not `0`, `Font.Menu` not `1`).
+   - In raw comparisons and assignments, prefer the verified numeric value if the enum form triggers a parser error (for example `pedTypeId == 6 // PedType.Cop`).
 7. **Prefer parser-safe syntax over compact syntax.** If an expression can be written either as one dense line or as 2-4 simple lines with temporaries, prefer the simpler form.
 8. **Keep function state explicit.** When helper functions need to update coordinates, counters, or handles, prefer parameters and return values over assigning to script-level variables from inside the function body.
+9. **Keep local arrays small.** Large arrays can exceed CLEO's local-variable budget for a scope. If you need more storage, use a smaller fixed buffer or memory-backed storage instead of a large local array.
 
 ## How to Look Things Up
 
@@ -133,6 +135,14 @@ These are common real-world issues in this workspace and toolchain.
 9. **Refactors that change helper signatures must be followed by call-site checks.**
    - After changing a function's parameters or return values, search the workspace for every call site before considering the edit done.
    - A practical pattern is to `rg` the function name immediately after the change.
+10. **Helper functions do not reliably share outer local state.**
+   - A helper may compile-fail if it reads or writes locals declared in the main script scope.
+   - Pass counters, handles, and coordinates as parameters, or keep the stateful loop inline in the main body.
+11. **Enums are less reliable in raw expressions than in opcode parameters.**
+   - Forms like `set_text_font {font} Font.Menu` are usually fine.
+   - Forms like `myValue == PedType.Cop` can fail in some parser contexts; use the verified numeric value there if needed.
+12. **Large local arrays can fail at compile time even when syntax is correct.**
+   - Errors like `Not enough memory to allocate a local variable ...` usually mean the scope exceeded the local-variable budget, not that the array syntax itself is wrong.
 
 ## AI-Specific Workflow Rules
 
@@ -150,6 +160,10 @@ These rules are aimed at agents working without a live compiler or runtime.
    - This catches stale no-arg or wrong-arg calls before the next compile.
 6. **When in doubt, mirror existing examples.**
    - If a pattern already appears in `examples/` or `scripts/`, prefer the documented house style over a novel but denser construction.
+7. **Treat scope-related compile errors literally.**
+   - Errors such as `Function X is not found in the current scope` after referencing a variable inside a helper often mean the parser rejected an outer local in that scope.
+8. **Treat local-memory errors as storage-shape problems first.**
+   - If a local array declaration fails, reduce the buffer size or redesign the storage before questioning the opcode logic.
 
 ## Examples and Patterns
 
@@ -175,6 +189,8 @@ These rules are aimed at agents working without a live compiler or runtime.
 14. Writing dense arithmetic like `x += y * speed` when a temporary variable would be parser-safer
 15. Mutating script-level state from helper functions when parameters/returns would be clearer
 16. Refactoring a helper signature without updating every call site
+17. Using enum members directly in raw comparisons when the parser only accepts the numeric value in that context
+18. Allocating oversized local arrays in a single scope
 
 ## Updating the Reference
 

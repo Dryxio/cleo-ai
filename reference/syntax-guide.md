@@ -271,6 +271,12 @@ end
 
 This shape is usually more robust than trying to assign directly into outer script variables from inside the helper.
 
+Important practical note:
+
+- Treat helper functions as having their own local scope.
+- If a helper reads or writes a variable declared in the main script body, Sanny may reject it even when the intent seems obvious.
+- If the helper needs a counter, handle, or coordinate, pass it in or keep the stateful logic inline in the main loop.
+
 ### Conditional return with cleo_return_with
 Functions can return a condition result (true/false) along with values. This is used when
 a function can fail and the caller needs to check success:
@@ -332,6 +338,7 @@ display_text_formatted {pos} 320.0 140.0 {format} "%s" {args} vehicleName
 ```
 
 5. When a helper's signature changes, re-check every call site immediately. Sanny compile errors often surface at the stale caller rather than the function definition.
+6. Large local arrays consume the same local-variable budget as other locals in the scope. If a declaration like `int blips[128]` fails, reduce the size or move the storage out of local scope.
 
 ## Parser Pitfalls
 
@@ -368,6 +375,49 @@ x, y, z = get_char_coordinates $scplayer
 
 If you need to preserve those values across helper calls, return them from the helper instead of relying on direct mutation of outer state.
 
+### Prefer numeric enum values in raw expressions when needed
+
+Enums are usually safe in opcode parameters:
+
+```
+set_text_font {font} Font.Menu
+change_blip_display blipHandle {display} BlipDisplay.BlipOnly
+```
+
+But raw expressions can be less reliable in some parser contexts:
+
+```
+if
+    pedTypeId == 6 // PedType.Cop
+then
+    // ...
+end
+```
+
+If `pedTypeId == PedType.Cop` throws an `Unknown directive ...` or similar parser error, keep the enum meaning in a comment and use the verified numeric value from `reference/enums.md`.
+
+### Keep stateful array manipulation in the same scope
+
+If a local array is declared in the main script scope, the safest pattern is to read and write it in that same scope:
+
+```
+int trackedBlips[24]
+int trackedCount = 0
+int index = 0
+
+index = 0
+while index < trackedCount
+    if
+        does_blip_exist trackedBlips[index]
+    then
+        remove_blip trackedBlips[index]
+    end
+    index += 1
+end
+```
+
+If you move this into a helper and the helper starts failing to see `trackedBlips` or `trackedCount`, treat that as a scope/parser limitation and keep the stateful loop inline.
+
 ### Keep function responsibilities narrow
 
 Helpers that only:
@@ -389,11 +439,13 @@ Common causes:
 - assigning to a name that is not valid in that scope
 - using a line shape the parser does not accept in that context
 - carrying over an old variable name after a refactor
+- using an enum member in a raw comparison the parser does not accept in that context
 
 First response:
 - compare the line against an existing example
 - simplify it into smaller statements
 - move values through locals or function returns
+- replace the enum in the raw expression with the verified numeric value and keep a comment with the enum name
 
 ### `Too many actual parameters. Expected N params.`
 
@@ -418,6 +470,31 @@ Common causes:
 
 First response:
 - check the function definition
+
+### `Function X is not found in the current scope. Check if the function is declared.`
+
+This can be a misleading scope error rather than a missing function.
+
+Common causes:
+- a helper function is trying to read or write a variable declared in the outer script scope
+- the parser stopped understanding a symbol because it is not valid in that scope
+
+First response:
+- check whether the reported name is actually a variable from the main script body
+- pass that state as parameters/returns, or inline the stateful logic back into the main scope
+
+### `Not enough memory to allocate a local variable X in the current scope.`
+
+Usually means the scope exceeded CLEO's local-variable budget.
+
+Common causes:
+- large local arrays such as `int values[128]`
+- too many locals accumulated in one script or helper scope
+
+First response:
+- reduce the array size
+- split the logic so fewer locals live in the same scope
+- move large storage to memory-backed techniques if the script genuinely needs it
 - search all call sites
 - compare against the opcode reference signature
 
