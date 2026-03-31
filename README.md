@@ -18,7 +18,7 @@ This repo contains a complete opcode reference, examples, and reusable patterns 
 1. Ask the AI to write a CLEO script
 2. It looks up the correct opcodes and parameters from `reference/`
 3. It follows the syntax rules from `reference/syntax-guide.md`
-4. You get a working `.cs` script you can drop into your CLEO folder
+4. Compile the script with Sanny Builder 4 and drop the `.cs` into your CLEO folder
 
 ## Requirements
 
