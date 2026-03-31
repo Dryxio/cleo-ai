@@ -2,7 +2,7 @@
 
 Create GTA San Andreas mods with AI.
 
-This repo contains a complete opcode reference, examples, and reusable patterns — designed to be used with an AI coding assistant (like Claude) that can look up opcodes, check parameter signatures, and generate correct scripts.
+This repo contains a complete opcode reference, examples, and reusable patterns — designed to be used with an AI coding assistant (Claude Code, Codex, Cursor, etc.) that can look up opcodes, check parameter signatures, and generate correct scripts.
 
 ## What's inside
 
