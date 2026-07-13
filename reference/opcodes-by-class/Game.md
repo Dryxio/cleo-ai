@@ -12,8 +12,8 @@
 | `0335` | SET_FREE_RESPRAYS | Defines whether the player can respray their car for free |
 | `03BF` | SET_EVERYONE_IGNORE_PLAYER | Makes pedestrians pay no attention to the player |
 | `03C7` | SET_WANTED_MULTIPLIER | Sets sensitivity to crime, changing how many crimes a player can commit before p |
-| `03D8` | ACTIVATE_SAVE_MENU | Displays a screen prompting the player to save |
-| `03D9` | HAS_SAVE_GAME_FINISHED | Returns true if the player has saved their game |
+| `03D8` | ACTIVATE_SAVE_MENU | Schedules save game menu to be displayed on next render frame |
+| `03D9` | HAS_SAVE_GAME_FINISHED | Returns false if save game menu was requested with activate_save_menu command, b |
 | `03F4` | SET_ALL_CARS_CAN_BE_DAMAGED | Sets whether all cars receive damage |
 | `040C` | IS_GERMAN_GAME | Returns true if the game language is set to German |
 | `0424` | ARE_MEASUREMENTS_IN_METRES | Returns true if the game uses metric measurements (meters instead of feet) |
@@ -165,7 +165,7 @@ Sets sensitivity to crime, changing how many crimes a player can commit before p
 ---
 
 ### `03D8` ACTIVATE_SAVE_MENU
-Displays a screen prompting the player to save
+Schedules save game menu to be displayed on next render frame
 
 **Class:** `Game.ActivateSaveMenu`
 **Flags:** static
@@ -173,7 +173,7 @@ Displays a screen prompting the player to save
 ---
 
 ### `03D9` HAS_SAVE_GAME_FINISHED
-Returns true if the player has saved their game
+Returns false if save game menu was requested with activate_save_menu command, but not displayed yet
 
 **Class:** `Game.HasSaveGameFinished`
 **Flags:** condition, static
@@ -360,6 +360,10 @@ Disables the game from creating police bikes and their riders on the roads
 **Input:**
 - `state: bool`
 
+**Details:**
+
+This command sets cops on the bikes to patrol the streets. It does not affect any other kinds of the police patrols.
+
 ---
 
 ### `0746` SET_RELATIONSHIP
@@ -537,6 +541,10 @@ Enables thermal vision effects
 
 **Input:**
 - `state: bool`
+
+**Details:**
+
+This command sets infrared vision. It is the same effect as wearing the thermal goggles.
 
 ---
 

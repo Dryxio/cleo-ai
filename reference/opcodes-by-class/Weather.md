@@ -53,6 +53,10 @@ Specifies whether the heat haze effect should be enabled in sunny conditions
 **Input:**
 - `state: bool`
 
+**Details:**
+
+This command sets the heat haze weather effect. A change in weather that has the heat haze effect will enable the effect.
+
 ---
 
 ### `0915` SET_WEATHER_TO_APPROPRIATE_TYPE_NOW

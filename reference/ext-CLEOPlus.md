@@ -474,10 +474,8 @@ Returns the address of TheCamera (CCamera) and ActiveCam (CCam)
 **Class:** `Camera.GetStruct`
 **Flags:** static
 
-**Input:**
-- `cCamera: int`
-
 **Output:**
+- `cCamera: int (variable)`
 - `activeCCam: int (variable)`
 
 ---

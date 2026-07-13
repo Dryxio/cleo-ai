@@ -93,6 +93,7 @@ function TRAIN_PAINT(handle: int, color1: int, color2: int)
 
     int idx = 1
     while true
+        wait {time} 0
         int carriage = get_train_carriage handle {number} idx
         if
             carriage == -1
@@ -105,4 +106,3 @@ function TRAIN_PAINT(handle: int, color1: int, color2: int)
         idx += 1
     end
 end
-

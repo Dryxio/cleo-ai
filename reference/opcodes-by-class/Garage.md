@@ -117,4 +117,8 @@ Returns true if the garage's door is closed
 - `garageId: string`
 - `state: bool`
 
+**Details:**
+
+This command sets the spray garage to respray for free. It is used for Michelle's girlfriend perk.
+
 ---

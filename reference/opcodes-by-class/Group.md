@@ -55,6 +55,10 @@ Puts the specified character into the group as a member
 - `self: Group`
 - `handle: Char`
 
+**Details:**
+
+This command sets the character as a member of the group. This command is similar to SET_PLAYER_AS_LEADER used in GTA3 and Vice City. The character would follow the leader of the group.
+
 ---
 
 ### `0632` REMOVE_GROUP
@@ -87,6 +91,10 @@ Sets how far members of the group can be from the leader before they are removed
 **Input:**
 - `self: Group`
 - `range: float`
+
+**Details:**
+
+This command sets the separation range of the group. The distance is how far the members of the group can stray around before getting "lost." If a member strays too far from the leader, the member will no longer belong to the group.
 
 ---
 

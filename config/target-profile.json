@@ -1,0 +1,45 @@
+{
+  "name": "gta-sa-pc-1.0-cleo5",
+  "game": "GTA San Andreas",
+  "platform": "Windows PC",
+  "game_version": "1.0",
+  "cleo": {
+    "version": "5.4.0",
+    "repository": "https://github.com/cleolibrary/CLEO5"
+  },
+  "sanny_builder": {
+    "version": "4.2.0",
+    "mode": "sa_sbl",
+    "download_url": "https://public.sannybuilder.com/archive/SannyBuilder-v4.2.0.zip",
+    "sha256": "4aceb1c1e430e57bc57216fbe95a3eac1829f2bd982ba19d99bb147caa4b33e6"
+  },
+  "implicit_extensions": [
+    "default",
+    "CLEO",
+    "audio",
+    "bitwise",
+    "debug",
+    "file",
+    "ini",
+    "input",
+    "math",
+    "memory",
+    "text"
+  ],
+  "opt_in_extensions": [
+    "CLEO+",
+    "NewOpcodes",
+    "SAMPFUNCS",
+    "Sphere",
+    "clipboard",
+    "imgui"
+  ],
+  "rules": {
+    "reject_unsupported_opcodes": true,
+    "reject_nop_opcodes": true,
+    "require_wait_in_unbounded_loops": true,
+    "require_model_release": true,
+    "require_explicit_opt_in_extension": true,
+    "script_name_max_length": 8
+  }
+}

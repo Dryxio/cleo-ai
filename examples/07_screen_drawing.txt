@@ -47,7 +47,7 @@ while true
         display_text_formatted {pos} 525.0 25.0 {format} "Speed: %.0f km/h" {args} speed
     else
         set_text_colour {rgb} 0x80 0x80 0x80 {alpha} 200
-        display_text {pos} 525.0 25.0 {text} "On foot"
+        display_text_formatted {pos} 525.0 25.0 {format} "On foot"
     end
 end
 

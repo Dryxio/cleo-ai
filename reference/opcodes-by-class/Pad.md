@@ -156,6 +156,10 @@ Sets whether the player can jump
 - `playerId: Player`
 - `enabled: bool`
 
+**Details:**
+
+This command can be used to disable the functionality of the jump key in the game. The jump key is button 14 on foot. Disabling it will disable any actions related to the key, including jumping and climbing.
+
 ---
 
 ### `0960` SET_PLAYER_DISPLAY_VITAL_STATS_BUTTON
@@ -167,6 +171,10 @@ Sets whether a player can use the ACTION key to display their stats
 **Input:**
 - `playerId: Player`
 - `enabled: bool`
+
+**Details:**
+
+This command can be used to disable the functionality of the action key in the game. The action key is button 4 on foot. Disabling it will disable any actions related to the key, including answering phone calls and replacing a weapon.
 
 ---
 

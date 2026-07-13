@@ -1,0 +1,146 @@
+[
+  {
+    "id": "basic_help",
+    "prompt": "Create a CLEO script that waits for the game to initialize, shows one literal help message, and terminates.",
+    "extensions": [],
+    "manual_checks": ["message appears once", "script terminates cleanly"]
+  },
+  {
+    "id": "keyboard_godmode",
+    "prompt": "Create an F5-toggle god mode with input debounce and an on/off help message.",
+    "extensions": [],
+    "manual_checks": ["one toggle per press", "proofs restore when disabled"]
+  },
+  {
+    "id": "vehicle_spawn_numeric",
+    "prompt": "Spawn vehicle model 411 five metres in front of the player when the player types vspawn, then place the player inside it.",
+    "extensions": [],
+    "manual_checks": ["model is loaded and released", "vehicle heading is sensible"]
+  },
+  {
+    "id": "vehicle_menu",
+    "prompt": "Build an F5 vehicle browser for model IDs 400 through 611 with safe key debounce and camera restoration after spawning.",
+    "extensions": [],
+    "manual_checks": ["IDs wrap at both ends", "menu does not consume Enter"]
+  },
+  {
+    "id": "teleport_presets",
+    "prompt": "Create four numeric-key teleport presets with a fade, vehicle-safe movement, and camera restoration.",
+    "extensions": [],
+    "manual_checks": ["works on foot and in a vehicle", "screen never remains black"]
+  },
+  {
+    "id": "save_float_position",
+    "prompt": "Save and restore the player's floating-point position and heading in an INI file using two cheat codes.",
+    "extensions": [],
+    "manual_checks": ["fractional coordinates are preserved", "missing file is handled"]
+  },
+  {
+    "id": "hud_speed",
+    "prompt": "Draw a small HUD showing literal text, player coordinates, and vehicle speed only while the player is active.",
+    "extensions": [],
+    "manual_checks": ["literal text renders", "HUD disappears safely during loading"]
+  },
+  {
+    "id": "temporary_blip",
+    "prompt": "Create a destination blip on cheat activation and remove the previous blip before creating another.",
+    "extensions": [],
+    "manual_checks": ["only one blip remains", "cleanup is safe"]
+  },
+  {
+    "id": "bodyguard_spawn",
+    "prompt": "Spawn one armed friendly bodyguard near the player, assign a follow task, and provide a cleanup cheat.",
+    "extensions": [],
+    "manual_checks": ["ped and weapon models are released", "ped cleanup works"]
+  },
+  {
+    "id": "pickup_reward",
+    "prompt": "Create a pickup that gives armour once, waits for the player to leave, and then becomes available again.",
+    "extensions": [],
+    "manual_checks": ["no reward spam", "pickup is removed when invalid"]
+  },
+  {
+    "id": "audio_button",
+    "prompt": "Load an audio file, play it once when Space is pressed, debounce the key, and remove the stream on shutdown.",
+    "extensions": [],
+    "manual_checks": ["missing audio is handled", "stream is removed"]
+  },
+  {
+    "id": "audio_3d_vehicle",
+    "prompt": "Load a 3D audio stream and attach it to the player's current vehicle while a toggle is enabled.",
+    "extensions": [],
+    "manual_checks": ["sound follows the vehicle", "stream is removed on toggle-off"]
+  },
+  {
+    "id": "weather_cycle",
+    "prompt": "Cycle through three verified weather values with a debounced key and show the selected value.",
+    "extensions": [],
+    "manual_checks": ["selection wraps", "weather state remains valid"]
+  },
+  {
+    "id": "camera_preview",
+    "prompt": "Create a temporary vehicle preview camera mode and reliably restore the normal player camera when closed.",
+    "extensions": [],
+    "manual_checks": ["camera always restores", "player control always restores"]
+  },
+  {
+    "id": "checkpoint_mission",
+    "prompt": "Create a small custom mission with one checkpoint, a timeout, success/failure messages, and reachable cleanup.",
+    "extensions": [],
+    "manual_checks": ["both exit paths clean up", "mission can be launched again"]
+  },
+  {
+    "id": "train_spawn",
+    "prompt": "Spawn a mission train near the player, paint all carriages, and put the player into the engine.",
+    "extensions": [],
+    "manual_checks": ["all models are released", "carriage loop yields"]
+  },
+  {
+    "id": "wanted_hotkeys",
+    "prompt": "Use two debounced keys to raise or clear the player's wanted level and show the result.",
+    "extensions": [],
+    "manual_checks": ["wanted level stays within limits", "player state is checked"]
+  },
+  {
+    "id": "vehicle_repair",
+    "prompt": "Repair the current vehicle on a cheat only when the player is actually driving a valid vehicle.",
+    "extensions": [],
+    "manual_checks": ["safe on foot", "vehicle is repaired"]
+  },
+  {
+    "id": "file_event_log",
+    "prompt": "Append a timestamped line to a log file whenever a cheat is entered and close every opened file handle.",
+    "extensions": [],
+    "manual_checks": ["multiple entries append", "file handles do not leak"]
+  },
+  {
+    "id": "cleo_plus_time",
+    "prompt": "Using CLEO+, synchronize the in-game clock from the operating-system local time once per minute.",
+    "extensions": ["CLEO+"],
+    "manual_checks": ["dependency is declared", "update interval is bounded"]
+  },
+  {
+    "id": "cleo_plus_radar",
+    "prompt": "Using CLEO+, mark nearby police characters and police vehicles, remove stale markers, and use a small fixed buffer.",
+    "extensions": ["CLEO+"],
+    "manual_checks": ["dependency is declared", "markers are cleaned up"]
+  },
+  {
+    "id": "samp_chat_command",
+    "prompt": "For SA-MP only, register a local chat command that displays the local player's health.",
+    "extensions": ["SAMPFUNCS"],
+    "manual_checks": ["SA-MP dependency is explicit", "single-player compatibility is not claimed"]
+  },
+  {
+    "id": "memory_vehicle_flag",
+    "prompt": "For GTA SA PC 1.0 only, read one documented vehicle handling flag and display its state without writing memory.",
+    "extensions": [],
+    "manual_checks": ["executable version is declared", "null pointers are checked"]
+  },
+  {
+    "id": "resource_cleanup_stress",
+    "prompt": "Create and later clean up a model, object, blip, audio stream, allocated memory block, and open file across success and cancellation paths.",
+    "extensions": [],
+    "manual_checks": ["every resource is released once", "cancellation restores camera/HUD/control"]
+  }
+]

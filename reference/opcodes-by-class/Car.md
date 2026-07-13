@@ -1580,6 +1580,10 @@ Assigns a car to a path
 - `self: Car`
 - `path: int`
 
+**Details:**
+
+This command assigns the vehicle to the car recording to travel on. Using this command requires the car recording to be loaded through REQUEST_CAR_RECORDING or else the game will crash.
+
 ---
 
 ### `05EC` STOP_PLAYBACK_RECORDED_CAR

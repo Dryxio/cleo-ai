@@ -30,10 +30,10 @@ while true
         x, y, z = get_char_coordinates $scplayer
         float heading = get_char_heading $scplayer
 
-        write_int_to_ini_file x {path} Save_File {section} "Position" {key} "X"
-        write_int_to_ini_file y {path} Save_File {section} "Position" {key} "Y"
-        write_int_to_ini_file z {path} Save_File {section} "Position" {key} "Z"
-        write_int_to_ini_file heading {path} Save_File {section} "Position" {key} "Heading"
+        write_float_to_ini_file x {path} Save_File {section} "Position" {key} "X"
+        write_float_to_ini_file y {path} Save_File {section} "Position" {key} "Y"
+        write_float_to_ini_file z {path} Save_File {section} "Position" {key} "Z"
+        write_float_to_ini_file heading {path} Save_File {section} "Position" {key} "Heading"
 
         print_help_string {text} "~g~Position saved!"
     end
@@ -46,10 +46,10 @@ while true
             does_file_exist {path} Save_File
         then
             float x, y, z, heading
-            x = read_int_from_ini_file {path} Save_File {section} "Position" {key} "X"
-            y = read_int_from_ini_file {path} Save_File {section} "Position" {key} "Y"
-            z = read_int_from_ini_file {path} Save_File {section} "Position" {key} "Z"
-            heading = read_int_from_ini_file {path} Save_File {section} "Position" {key} "Heading"
+            x = read_float_from_ini_file {path} Save_File {section} "Position" {key} "X"
+            y = read_float_from_ini_file {path} Save_File {section} "Position" {key} "Y"
+            z = read_float_from_ini_file {path} Save_File {section} "Position" {key} "Z"
+            heading = read_float_from_ini_file {path} Save_File {section} "Position" {key} "Heading"
 
             set_char_coordinates $scplayer {xyz} x y z
             set_char_heading $scplayer {heading} heading

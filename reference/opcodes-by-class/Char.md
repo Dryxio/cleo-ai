@@ -2999,6 +2999,10 @@ Sets the character's fire arms wielding style
 - `self: Char`
 - `skill: WeaponSkill`
 
+**Details:**
+
+This command sets the weapon skill of the character. This does not work on CJ.
+
 ---
 
 ### `083C` SET_CHAR_VELOCITY

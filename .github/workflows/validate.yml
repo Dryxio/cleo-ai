@@ -1,0 +1,65 @@
+name: Validate CLEO workspace
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  reference-and-static-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild pinned reference snapshot
+        run: python3 tools/sync_reference.py
+
+      - name: Check generated references are committed
+        run: git diff --exit-code -- reference
+
+      - name: Run validator tests
+        run: python3 -m unittest discover -s tests -v
+
+      - name: Validate examples, patterns, and scripts
+        run: python3 tools/validate_workspace.py --strict
+
+  portable-sanny-compile:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Restore pinned opcode source
+        run: python tools/sync_reference.py --no-generate
+
+      - name: Download pinned Sanny Builder
+        shell: pwsh
+        run: |
+          $profile = Get-Content config/target-profile.json -Raw | ConvertFrom-Json
+          Invoke-WebRequest $profile.sanny_builder.download_url -OutFile sanny.zip
+          $actual = (Get-FileHash sanny.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($actual -ne $profile.sanny_builder.sha256) {
+            throw "Sanny Builder checksum mismatch: $actual"
+          }
+          Expand-Archive sanny.zip -DestinationPath .validation-cache/sanny
+          Copy-Item source_data/sa.json .validation-cache/sanny/data/sa_sbl/sa.json -Force
+
+      - name: Compile portable sources
+        shell: pwsh
+        run: >-
+          ./tools/compile_all.ps1
+          -SannyRoot .validation-cache/sanny
+          -SkipModelAliasFiles
+
+      - name: Upload compiled scripts
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-cleo-scripts
+          path: .validation-cache/compiled

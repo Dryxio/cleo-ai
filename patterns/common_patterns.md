@@ -77,20 +77,20 @@ end
 ## 5. Spawn Vehicle
 
 ```
-function SPAWN_CAR_AT_PLAYER(modelHash: int): int
-    request_model {modelId} modelHash
+function SPAWN_CAR_AT_PLAYER(modelId: int): int
+    request_model {modelId} modelId
     load_all_models_now
 
     float x, y, z
     x, y, z = get_offset_from_char_in_world_coords $scplayer {offset} 0.0 5.0 0.0
 
-    int car = create_car {modelId} modelHash {pos} x y z
-    mark_model_as_no_longer_needed {modelId} modelHash
+    int vehicleHandle = create_car {modelId} modelId {pos} x y z
+    mark_model_as_no_longer_needed {modelId} modelId
 
     float heading = get_char_heading $scplayer
-    set_car_heading car {heading} heading
+    set_car_heading vehicleHandle {heading} heading
 
-    return car
+    return vehicleHandle
 end
 ```
 
@@ -192,7 +192,7 @@ remove_audio_stream stream
 
 ```
 int stream = load_3d_audio_stream "cleo\sound.mp3"
-set_play_3d_audio_stream_at_coord stream {pos} x y z
+set_play_3d_audio_stream_at_coords stream {pos} x y z
 set_audio_stream_looped stream true
 set_audio_stream_state stream AudioStreamAction.Play
 ```
@@ -287,14 +287,15 @@ wait {time} 500
 do_fade {time} 500 {direction} Fade.In
 set_player_control $player1 {state} true
 
-// Main mission loop
-while true
+// Main mission loop. Set this to false when the objective is complete.
+int missionRunning = true
+while missionRunning
     wait {time} 0
     // ... mission logic, objectives ...
 end
 
 // End mission
-mission_cleanup
+mission_has_finished
 terminate_this_custom_script
 ```
 

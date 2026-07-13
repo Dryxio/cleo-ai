@@ -161,7 +161,7 @@ Makes the helicopter hunt down the character or the vehicle within the specified
 - `char: Char`
 - `vehicle: Car`
 - `minAltitude: float`
-- `maxAltitude: any`
+- `maxAltitude: float`
 
 ---
 
@@ -217,6 +217,10 @@ Makes the helicopter rotor spin at full speed instantly
 
 **Input:**
 - `self: Heli`
+
+**Details:**
+
+This command instantly starts the rotor of a helicopter so you don't need to wait for it to start. You cannot use this command on any other vehicles.
 
 ---
 

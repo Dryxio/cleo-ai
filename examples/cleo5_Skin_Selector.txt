@@ -166,6 +166,7 @@ function MENU_SKIN(modelNamePtr: int): string
         fileSearch, str = find_first_file {searchMask} ".\..\skin.img\*.dff"
     then
         repeat
+            wait {time} 0
             if
                 is_text_equal {text} str {another} iTmp {ignoreCase} true // current selection found
             then
@@ -224,6 +225,7 @@ function MENU_SKIN(modelNamePtr: int): string
         add_text_label {dynamicKey} 'SKS_NUL' {text} "_" // empty
         int menuHandle = -1
         while true
+            wait {time} 0
             :_MENU_SKIN_MENU_BEGIN
             if
                 menuHandle <> -1
@@ -269,6 +271,7 @@ function MENU_SKIN(modelNamePtr: int): string
             iTmp = 0 // index
             iTmp2 = 0 // page
             while true
+                wait {time} 0
                 switch iTmp
                     case 0
                         string_format str = "Default"
@@ -293,6 +296,7 @@ function MENU_SKIN(modelNamePtr: int): string
                     then
                         iTmp3 = str
                         while true
+                            wait {time} 0
                             if
                                 is_text_equal {text} iTmp3 {another} ".dff" {ignoreCase} true
                             then

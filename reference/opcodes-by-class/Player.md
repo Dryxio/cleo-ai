@@ -21,7 +21,7 @@
 | `01F5` | GET_PLAYER_CHAR | Gets the character handle for the specified player |
 | `0221` | APPLY_BRAKES_TO_PLAYERS_CAR | Applies brakes to the player's car |
 | `0241` | IS_PLAYER_IN_REMOTE_MODE | Returns true if the player is controlling a remote-control vehicle |
-| `0256` | IS_PLAYER_PLAYING | Returns true if the player hasn't been wasted or busted (the player is still pla |
+| `0256` | IS_PLAYER_PLAYING | Returns true if the player is alive and not arrested by the police |
 | `0297` | RESET_NUM_OF_MODELS_KILLED_BY_PLAYER | Resets the count of how many times the player has destroyed a certain model |
 | `0298` | GET_NUM_OF_MODELS_KILLED_BY_PLAYER | Returns the number of times the player has destroyed a specific model |
 | `0330` | SET_PLAYER_NEVER_GETS_TIRED | Defines whether the player can run fast forever |
@@ -260,7 +260,7 @@ Returns true if the player is controlling a remote-control vehicle
 ---
 
 ### `0256` IS_PLAYER_PLAYING
-Returns true if the player hasn't been wasted or busted (the player is still playing)
+Returns true if the player is alive and not arrested by the police
 
 **Class:** `Player.IsPlaying`
 **Flags:** condition
@@ -381,6 +381,10 @@ Sets the players mood, affecting the dialogue spoken by the player
 - `self: Player`
 - `mood: PlayerMood`
 - `time: int`
+
+**Details:**
+
+This command sets the mood of the player for the duration of time. The character will utter phrases that pertain to that mood.
 
 ---
 

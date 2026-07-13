@@ -43,13 +43,13 @@ def load_upstream_docs(docs_dir):
         opcode_name = filename[:-3]  # strip .md
         filepath = os.path.join(docs_dir, filename)
         try:
-            with open(filepath, "r") as f:
+            with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read().strip()
-            if content:
-                docs_exact[opcode_name] = content
-                docs_upper[opcode_name.upper()] = content
-        except Exception:
-            pass
+        except OSError as error:
+            raise RuntimeError(f"Failed to read upstream documentation: {filepath}") from error
+        if content:
+            docs_exact[opcode_name] = content
+            docs_upper[opcode_name.upper()] = content
 
     return docs_exact, docs_upper
 
@@ -190,7 +190,7 @@ def generate_class_files(commands_by_class):
             lines.append("---")
             lines.append("")
 
-        with open(filepath, "w") as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write("\n".join(lines))
 
         generated_files.append((class_name, len(commands), filename))
@@ -232,7 +232,7 @@ def generate_unclassed_file(commands):
             lines.append("---")
             lines.append("")
 
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
     return ("_General", len(commands), "_General.md")
@@ -276,7 +276,7 @@ def generate_extension_file(ext_name, commands):
             lines.append("---")
             lines.append("")
 
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
     return safe_name, len(commands)
@@ -310,7 +310,7 @@ def generate_enums(enums_data):
             lines.append(f"| {val_name} | {val_display} |")
         lines.append("")
 
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
     return len(enums_data)
@@ -318,7 +318,7 @@ def generate_enums(enums_data):
 
     # NOTE: syntax-guide.md is maintained manually — no generate function here
 
-def generate_opcode_index(all_commands):
+def generate_opcode_index(all_commands, meta):
     """Generate a searchable opcode index with full descriptions."""
     filepath = os.path.join(REF_DIR, "opcode-index.md")
 
@@ -327,9 +327,14 @@ def generate_opcode_index(all_commands):
 
     lines = ["# Opcode Index", ""]
     lines.append("Searchable index of all opcodes. Use Ctrl+F / grep to find opcodes by ID or name.")
+    if meta:
+        lines.append(
+            f"Source: Sanny Builder Library `{meta.get('version', 'unknown')}`. "
+            "See `reference/upstream-manifest.json` for the pinned commit."
+        )
     lines.append("")
-    lines.append("| Opcode | Name | Class | Extension | Params | Description |")
-    lines.append("|--------|------|-------|-----------|--------|-------------|")
+    lines.append("| Opcode | Name | Class | Extension | Params | Flags | Description |")
+    lines.append("|--------|------|-------|-----------|--------|-------|-------------|")
 
     for cmd in sorted_cmds:
         opcode = cmd["id"]
@@ -337,13 +342,17 @@ def generate_opcode_index(all_commands):
         cls = cmd.get("class", "")
         ext = cmd.get("_extension", "default")
         num_params = cmd.get("num_params", 0)
+        attrs = cmd.get("attrs", {})
+        flags = ", ".join(key.replace("is_", "") for key, value in attrs.items() if value)
         # Full description - no truncation. Pipe chars escaped for markdown table.
         desc = cmd.get("short_desc", "").replace("|", "\\|")
-        lines.append(f"| `{opcode}` | {name} | {cls} | {ext} | {num_params} | {desc} |")
+        lines.append(
+            f"| `{opcode}` | {name} | {cls} | {ext} | {num_params} | {flags} | {desc} |"
+        )
 
     lines.append("")
 
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
 
     return len(sorted_cmds)
@@ -364,11 +373,11 @@ def main():
         docs_dir = os.path.join(source_dir, "docs")
 
     print(f"Loading {sa_path}...")
-    with open(sa_path) as f:
+    with open(sa_path, encoding="utf-8") as f:
         sa_data = json.load(f)
 
     print(f"Loading {enums_path}...")
-    with open(enums_path) as f:
+    with open(enums_path, encoding="utf-8") as f:
         enums_data = json.load(f)
 
     # Load upstream detailed docs
@@ -434,7 +443,7 @@ def main():
 
     # Generate opcode index
     print("Generating opcode index...")
-    index_count = generate_opcode_index(all_commands)
+    index_count = generate_opcode_index(all_commands, sa_data.get("meta", {}))
 
     # NOTE: syntax-guide.md is maintained manually, not regenerated
 

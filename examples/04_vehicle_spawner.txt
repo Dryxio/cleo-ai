@@ -21,18 +21,18 @@ while true
         // Pick random vehicle model
         int modelId = pick_random_int {values} #INFERNUS #TURISMO #BULLET #SULTAN #ELEGY #JESTER #URANUS #BANSHEE
 
-        int car = SPAWN_VEHICLE(modelId)
+        int vehicleHandle = SPAWN_VEHICLE(modelId)
 
         if
-            car <> -1
+            vehicleHandle <> -1
         then
             // Warp player into car
-            warp_char_into_car $scplayer {vehicle} car
+            warp_char_into_car $scplayer {vehicle} vehicleHandle
 
             // Random colors
             int c1 = generate_random_int_in_range {min} 0 {max} 126
             int c2 = generate_random_int_in_range {min} 0 {max} 126
-            change_car_colour car {color1} c1 {color2} c2
+            change_car_colour vehicleHandle {color1} c1 {color2} c2
 
             print_help_string {text} "~g~Vehicle spawned!"
         end
@@ -60,13 +60,13 @@ function SPAWN_VEHICLE(modelId: int): int
     request_model {modelId} modelId
     load_all_models_now
 
-    int car = create_car {modelId} modelId {pos} x y z
+    int vehicleHandle = create_car {modelId} modelId {pos} x y z
     mark_model_as_no_longer_needed {modelId} modelId
 
-    set_car_heading car {heading} heading
+    set_car_heading vehicleHandle {heading} heading
 
     // Improve vehicle
-    improve_car_by_cheating car {state} true
+    improve_car_by_cheating vehicleHandle {state} true
 
-    return car
+    return vehicleHandle
 end

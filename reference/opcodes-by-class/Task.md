@@ -581,6 +581,10 @@ Makes the character perform an animation
 - `keepLastFrame: bool`
 - `time: int`
 
+**Details:**
+
+This command makes the character perform the specified animation. With the exception of the "PED" animation file, using this command requires REQUEST_ANIMATION or else the game may crash.
+
 ---
 
 ### `0622` TASK_LEAVE_CAR_IMMEDIATELY
@@ -858,7 +862,7 @@ Makes the char sit down for the specified amount of time
 **Input:**
 - `char: Char`
 - `vehicle: Car`
-- `speed: int`
+- `speed: float`
 
 ---
 
@@ -1133,6 +1137,10 @@ Makes the character attack the specified character
 
 **Input:**
 - `handle: Char`
+
+**Details:**
+
+This command puts a jetpack on CJ. This is not tested on a second character controlled in co-op. This does not work on NPCs.
 
 ---
 

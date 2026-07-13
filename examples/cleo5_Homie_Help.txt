@@ -117,6 +117,7 @@ function CHEAT_SPAWN_HELP()
         then
             // make sure to use different model than previous
             repeat
+                wait {time} 0
                 iTmp = pick_random_int {values} #FAM1 #FAM2 #FAM3
             until iTmp <> modelIdx
             modelIdx = iTmp

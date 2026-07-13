@@ -31,12 +31,12 @@ while true
         request_model #INFERNUS
         load_all_models_now
 
-        int car = create_car {modelId} #INFERNUS {pos} x y z
+        int vehicleHandle = create_car {modelId} #INFERNUS {pos} x y z
         mark_model_as_no_longer_needed #INFERNUS
 
         // Set heading to match player
         float heading = get_char_heading $scplayer
-        set_car_heading car {heading} heading
+        set_car_heading vehicleHandle {heading} heading
 
         print_help_string {text} "~g~Infernus spawned!"
     end

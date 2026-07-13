@@ -69,7 +69,7 @@ You are assisting with writing CLEO scripts for GTA San Andreas using CLEO5 and 
 
 ```
 cleo-workspace/
-├── CLAUDE.md                    # This file (read first)
+├── AGENTS.md                    # This file (read first)
 ├── reference/
 │   ├── opcode-index.md          # Searchable index of ALL 3,739 opcodes
 │   ├── syntax-guide.md          # CLEO script syntax reference
