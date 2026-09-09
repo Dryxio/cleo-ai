@@ -4,6 +4,16 @@ Create GTA San Andreas mods with AI.
 
 This repo contains a generated opcode reference, compiler-backed validation workflow, examples, and reusable patterns — designed for AI coding assistants that must verify commands instead of guessing them.
 
+## Get started with your AI
+
+**Give your AI this repo and tell it what you want to do.** It can check your setup, install the tools it needs, and walk you through anything that needs your help. Use an AI coding agent that can access files and run commands on your computer.
+
+Copy this into your agent:
+
+> Help me set up https://github.com/Dryxio/cleo-ai. Read the README and agent guide, check my GTA San Andreas version and installed tools, and help me set up the required CLEO and Sanny Builder versions. Then make a simple mod that spawns a car near the player when I press F5. Check the script, compile it, and show me how to install and try it in game.
+
+You'll need your own GTA San Andreas PC 1.0 installation. The default setup uses CLEO 5.4 and Sanny Builder 4; your agent can check compatibility before getting started.
+
 ## What's inside
 
 | Folder | What it is |
@@ -15,6 +25,13 @@ This repo contains a generated opcode reference, compiler-backed validation work
 | `config/` | Pinned GTA/CLEO/Sanny compatibility policy |
 | `evals/` | Stable prompt suite for measuring AI first-pass quality |
 | `tools/` | Upstream sync, static validation, and Sanny compilation commands |
+
+## Manual setup
+
+Prefer to install it yourself? Expand the instructions below.
+
+<details>
+<summary>Manual installation, configuration and examples</summary>
 
 ## How it works
 
@@ -30,6 +47,8 @@ The default profile targets GTA SA PC 1.0, CLEO 5.4, and the plugins bundled wit
 
 - [CLEO 5](https://cleo.li/) installed in your GTA San Andreas directory
 - [Sanny Builder 4](https://sannybuilder.com/) to compile `.txt` scripts into `.cs`
+
+</details>
 
 ## Updating the reference
 
