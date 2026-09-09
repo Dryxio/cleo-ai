@@ -1,6 +1,6 @@
-# cleo-ai
+# CLEO AI
 
-Create GTA San Andreas mods with AI.
+Create GTA San Andreas mods with your AI.
 
 This repo contains a generated opcode reference, compiler-backed validation workflow, examples, and reusable patterns — designed for AI coding assistants that must verify commands instead of guessing them.
 
