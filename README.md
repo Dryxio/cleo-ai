@@ -6,7 +6,9 @@ This repo contains a generated opcode reference, compiler-backed validation work
 
 ## Get started with your AI
 
-**Give your AI this repo and tell it what you want to do.** It can check your setup, install the tools it needs, and walk you through anything that needs your help. Use an AI coding agent that can access files and run commands on your computer.
+**Give your AI this repo and tell it what you want to do.** It can check your setup, install the tools it needs, and walk you through anything that needs your help.
+
+**Before you start:** this is a free tool for an AI coding agent. Your agent must be able to read and write files and run commands on your computer. A chat that only gives you instructions cannot complete the workflow for you. Your AI provider may charge separately.
 
 Copy this into your agent:
 
